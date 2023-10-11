@@ -42,6 +42,8 @@ import com.jme3.font.{BitmapFont, BitmapText}
 import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.scene.Node
 import com.simsilica.es.{EntityData, EntityId}
+import com.simsilica.lemur.Label
+import com.simsilica.lemur.style.ElementId
 import org.cacophony.MatchDeck.getClass
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -68,7 +70,7 @@ class MatchGameState extends BaseAppState {
 
   private var ed: EntityData = _
 
-  private var currentState: MGState = new MGStart()
+  private var currentState: MGState = _
   private var hud: MatchGameHUD = _
   private var gameLevel: MatchLevel = _
   private var locations: TableauLocations = _
@@ -87,15 +89,17 @@ class MatchGameState extends BaseAppState {
   }
 
   override def cleanup(app: Application): Unit = {
-    logger.trace("[MatchGameState.cleanup] enter.")
+    logger.debug("[MatchGameState.cleanup] enter.")
   }
 
   override def onEnable(): Unit = {
-    logger.trace("[MatchGameState.onEnable] enter.")
+    logger.debug("[MatchGameState.onEnable] enter.")
+    currentState = new MGStart()
   }
 
   override def onDisable(): Unit = {
-    logger.trace("[MatchGameState.onDisable] enter.")
+    logger.debug("[MatchGameState.onDisable] enter.")
+    hud.disable()
   }
 
   override def update(tpf: Float): Unit = {
@@ -344,11 +348,28 @@ class MatchGameState extends BaseAppState {
   }
 
   /**
-   * TODO: add spiffy message
+   * Game is over, return to menu.
    */
   private class MGGameOver extends MGState {
-    override def update(tpf: Float): MGState = this
+    private var time = 2.5f
+    override def update(tpf: Float): MGState = {
+      hud.updateMessage("Game Over")
+      time -= tpf
 
+      if time > 0 then
+        logger.debug("[MGGameOver.update] still waiting.")
+      else
+        logger.debug("[MGGameOver.update] return to menu.")
+        getState(classOf[MainMenuState]).setEnabled(true)
+        getStateManager.detach(MatchGameState.this)
+
+      this
+    }
+
+    /**
+     * Ignore clicks in this state.
+     * @param cardID Why is the player even clicking?
+     */
     override def click(cardID: lang.Long): Unit = {}
   }
 }
@@ -567,9 +588,18 @@ class MatchGameHUD(app: AnimalCards) {
   private var scoreText: BitmapText = _
   private var levelText: BitmapText = _
   private var matchText: BitmapText = _
+  private var messageText: Label = _
   private var score: Int = 0
 
   createHUD()
+
+  def disable(): Unit = {
+    val guiNode = this.app.getGuiNode
+    guiNode.detachChild(scoreText)
+    guiNode.detachChild(levelText)
+    guiNode.detachChild(matchText)
+    guiNode.detachChild(messageText)
+  }
 
   def adjustScore(by: Int): Unit = {
     score += by
@@ -584,6 +614,10 @@ class MatchGameHUD(app: AnimalCards) {
     matchText.setText(s"Match: $matchString")
   }
 
+  def updateMessage(message: String): Unit = {
+    messageText.setText(message)
+  }
+
   private def createHUD(): Unit = {
     val guiNode = this.app.getGuiNode
     val guiFont = this.app.getGuiFont
@@ -591,6 +625,7 @@ class MatchGameHUD(app: AnimalCards) {
     addScore(guiNode, guiFont)
     addLevel(guiNode, guiFont)
     addMatchSize(guiNode, guiFont)
+    addMessage(guiNode, guiFont)
   }
 
   private def addScore(guiNode: Node, guiFont: BitmapFont): Unit = {
@@ -606,6 +641,14 @@ class MatchGameHUD(app: AnimalCards) {
   private def addMatchSize(guiNode: Node, guiFont: BitmapFont): Unit = {
     matchText = createText(guiNode, guiFont, 350f)
     matchText.setText("Match: PAIRS") // the text
+  }
+
+  private def addMessage(guiNode: Node, guiFont: BitmapFont): Unit = {
+    messageText = new Label("", new ElementId(ToyStyles.TITLE_ID), "retro")
+    messageText.setLocalTranslation(900f, 450f, 0f)
+    guiNode.attachChild(messageText)
+//    messageText = createText(guiNode, guiFont, 350f)
+//    messageText.setText("") // Empty by default
   }
 
   private def createText(guiNode: Node, guiFont: BitmapFont, xLocation: Float): BitmapText = {

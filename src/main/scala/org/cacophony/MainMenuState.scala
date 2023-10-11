@@ -89,9 +89,11 @@ class MainMenuState() extends BaseAppState {
   }
 
   private class Start extends Command[Button] {
+    private val gameState = new MatchGameState()
+
     override def execute(source: Button): Unit = {
       logger.trace("[Start.execute] enter.")
-      getStateManager.attach(new MatchGameState)
+      getStateManager.attach(gameState)
       setEnabled(false)
     }
   }

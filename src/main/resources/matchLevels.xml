@@ -33,6 +33,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <org.cacophony.MatchLevels format_version='2' savable_versions='0'>
+    <!-- Use this for testing end of game stuff -->
+<!--    <levels size='1'>-->
+<!--        <org.cacophony.MatchLevel cardsPerMatch='2' label='ONE' matches='3' savable_versions='0'/>-->
+<!--    </levels>-->
+    <!-- Use this for actual play. -->
     <levels size='5'>
         <org.cacophony.MatchLevel cardsPerMatch='2' label='ONE' matches='3' savable_versions='0'/>
         <org.cacophony.MatchLevel cardsPerMatch='2' label='TWO' matches='4' savable_versions='0'/>
