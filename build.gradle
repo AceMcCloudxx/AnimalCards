@@ -1,0 +1,89 @@
+/*
+ * $Id$
+ *
+ * Copyright (c) 2011-2013 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+plugins {
+    id 'scala'
+    id 'application'
+}
+
+group 'org.cacophony'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+project.ext {
+    scalaVersion = "3.2.2"
+    jmeVer = "3.6.1-stable"
+    logbackVersion = "1.4.11"
+}
+
+application {
+    mainClass = 'org.cacophony.Main'
+    applicationDefaultJvmArgs = ['-XstartOnFirstThread']
+}
+
+dependencies {
+    implementation "org.scala-lang:scala3-library_3:$scalaVersion"
+    implementation "org.scala-lang.modules:scala-xml_3:2.2.0"
+
+    implementation "org.jmonkeyengine:jme3-core:$jmeVer"
+    implementation "org.jmonkeyengine:jme3-desktop:$jmeVer"
+    implementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
+    implementation "org.jmonkeyengine:jme3-jogg:$jmeVer"
+    implementation "org.jmonkeyengine:jme3-testdata:$jmeVer"
+    // I'm working on a Mac, and trying to use the default configuration dialog
+    // locked up the app completely.
+    //    implementation "org.jmonkeyengine:jme3-awt-dialogs:$jmeVer"
+
+    implementation "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+
+    implementation group: 'com.simsilica', name: 'zay-es', version: '1.5.0'
+    implementation 'com.simsilica:lemur:1.16.0'
+    implementation 'com.simsilica:lemur-proto:1.13.0'
+    implementation 'org.apache.groovy:groovy-jsr223:4.0.15'
+
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation group: 'ch.qos.logback', name: 'logback-core', version: "$logbackVersion"
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: "$logbackVersion"
+
+    testImplementation 'org.scalatest:scalatest_3:3.2.17'
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
