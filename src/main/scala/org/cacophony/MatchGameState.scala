@@ -245,6 +245,8 @@ class MatchGameState extends BaseAppState {
 
       if discards.contains(entityId) then
         logger.trace("[MGPlay.click] ignore click on discarded card.")
+      else if turned.contains(entityId) then
+        logger.debug("[MGPlay.click] ignore click on selected card.")
       else if chooseCount < gameLevel.cardsPerMatch then
         turned(chooseCount) = entityId
         chooseCount += 1
