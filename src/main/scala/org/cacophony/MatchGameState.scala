@@ -131,6 +131,7 @@ class MatchGameState extends BaseAppState {
         logger.debug("[MGStart.update] initializing.")
         hud.updateLevel(gameLevel.label)
         hud.updateMatch(gameLevel.getMatchText)
+        hud.updateMessage(s"Level: ${gameLevel.label} Matching: ${gameLevel.getMatchText}")
         locations = new TableauLocations(gameLevel)
         logger.debug("[MGStart.update] starting at: {}", TableauLocations.deckLocation)
         MatchDeck.createDeck(gameLevel, TableauLocations.deckLocation, ed)
@@ -169,6 +170,7 @@ class MatchGameState extends BaseAppState {
       if needsInitialization then
         initialize()
       else if dealList.isEmpty then
+        hud.updateMessage("")
         result = new MGPlay()
       else
         elapsed += tpf
@@ -235,6 +237,7 @@ class MatchGameState extends BaseAppState {
         else
           handleNonMatch()
       else if matchesRemaining == 0 then
+        hud.updateMessage("Level Complete!")
         result = new MGLevelComplete()
 
       result
@@ -337,7 +340,9 @@ class MatchGameState extends BaseAppState {
       cleanup()
       gameLevel = gameLevel.getNext
 
-      if gameLevel == null then new MGGameOver()
+      if gameLevel == null then
+        hud.updateMessage("Game Over")
+        new MGGameOver()
       else new MGStart()
     }
 
@@ -355,7 +360,6 @@ class MatchGameState extends BaseAppState {
   private class MGGameOver extends MGState {
     private var time = 2.5f
     override def update(tpf: Float): MGState = {
-      hud.updateMessage("Game Over")
       time -= tpf
 
       if time > 0 then
@@ -587,6 +591,9 @@ class TableauLocations(gameLevel: MatchLevel) {
  * @param app The application, so we can get the guiNode and guiFont
  */
 class MatchGameHUD(app: AnimalCards) {
+  private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
+  private var guiNode: Node = _
+
   private var scoreText: BitmapText = _
   private var levelText: BitmapText = _
   private var matchText: BitmapText = _
@@ -596,7 +603,6 @@ class MatchGameHUD(app: AnimalCards) {
   createHUD()
 
   def disable(): Unit = {
-    val guiNode = this.app.getGuiNode
     guiNode.detachChild(scoreText)
     guiNode.detachChild(levelText)
     guiNode.detachChild(matchText)
@@ -618,16 +624,21 @@ class MatchGameHUD(app: AnimalCards) {
 
   def updateMessage(message: String): Unit = {
     messageText.setText(message)
+    val size = messageText.getPreferredSize
+    logger.warn("[MatchGameHUD.updateMessage] size: {}", size)
+    val newX = 900f - (size.x / 2)
+    logger.warn("[MatchGameHUD.updateMessage] newX: {}", newX)
+    messageText.setLocalTranslation(newX, 450f, 0f)
   }
 
   private def createHUD(): Unit = {
-    val guiNode = this.app.getGuiNode
+    guiNode = this.app.getGuiNode
     val guiFont = this.app.getGuiFont
 
     addScore(guiNode, guiFont)
     addLevel(guiNode, guiFont)
     addMatchSize(guiNode, guiFont)
-    addMessage(guiNode, guiFont)
+    addMessage(guiNode)
   }
 
   private def addScore(guiNode: Node, guiFont: BitmapFont): Unit = {
@@ -645,12 +656,10 @@ class MatchGameHUD(app: AnimalCards) {
     matchText.setText("Match: PAIRS") // the text
   }
 
-  private def addMessage(guiNode: Node, guiFont: BitmapFont): Unit = {
+  private def addMessage(guiNode: Node): Unit = {
     messageText = new Label("", new ElementId(ToyStyles.TITLE_ID), "retro")
     messageText.setLocalTranslation(900f, 450f, 0f)
     guiNode.attachChild(messageText)
-//    messageText = createText(guiNode, guiFont, 350f)
-//    messageText.setText("") // Empty by default
   }
 
   private def createText(guiNode: Node, guiFont: BitmapFont, xLocation: Float): BitmapText = {
