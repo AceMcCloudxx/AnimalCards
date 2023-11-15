@@ -36,72 +36,110 @@ package org.cacophony
 
 import com.jme3.app.Application
 import com.jme3.app.state.BaseAppState
-import com.simsilica.lemur.component.SpringGridLayout
-import com.simsilica.lemur.style.ElementId
-import com.simsilica.lemur.{Button, Command, Container, Label}
+import org.cacophony.MainMenuState.{MATCH_GAME, SEQUENCE_GAME, menuItems}
 import org.slf4j.{Logger, LoggerFactory}
 
-class MainMenuState() extends BaseAppState {
+/**
+ * Constants for the menu options here.
+ *
+ * @author Ace McCloud
+ */
+object MainMenuState:
+  val MATCH_GAME = "Match Game"
+  val SEQUENCE_GAME = "Sequence Game"
+  private val EXIT = "Exit"
+
+  val menuItems: Array[MenuOption] = Array[MenuOption](
+    new MenuOption(MATCH_GAME),
+    new MenuOption(SEQUENCE_GAME),
+    new MenuOption(EXIT)
+  )
+end MainMenuState
+
+/**
+ * Puts up the "main menu" to allow player to pick a game.
+ *
+ * @author Ace McCloud
+ */
+class MainMenuState extends BaseAppState:
   private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
-  private var menu: Container = _
+  private var app: AnimalCards = _
+  private var menu: SimpleMenu = _
 
-  override def initialize(app: Application): Unit = {
+  private val matchGame = new MatchGameState()
+  private val sequenceGame = new SequenceGameState()
+
+  /**
+   * One-time startup when app is loaded - save off the application reference, properly cast
+   */
+  override def initialize(app: Application): Unit =
     logger.trace("[MainMenuState.initialize] enter.")
-    menu = new Container(new SpringGridLayout, new ElementId(ToyStyles.MENU_ID), "retro")
+    this.app = app.asInstanceOf[AnimalCards]
 
-    menu.addChild(new Label("Match Game", new ElementId(ToyStyles.MENU_TITLE_ID), "retro"))
-
-    val start = menu.addChild(new Button("Start Game", "retro"))
-    start.addClickCommands(new Start())
-    start.addCommands(Button.ButtonAction.HighlightOn, new Highlight())
-
-    val exit = menu.addChild(new Button("Exit", "retro"))
-    exit.addClickCommands(new Stop())
-    exit.addCommands(Button.ButtonAction.HighlightOn, new Highlight())
-
-    val cam = app.getCamera
-    val menuScale = cam.getHeight / 720f
-
-    val pref = menu.getPreferredSize
-    menu.setLocalTranslation(cam.getWidth * 0.5f - pref.x * 0.5f * menuScale, cam.getHeight * 0.75f + pref.y * 0.5f * menuScale, 10)
-    menu.setLocalScale(menuScale)
-  }
-
+  /**
+   * Define the abstract method, even though we don't use it
+   * @param app Reference to our application
+   */
   override def cleanup(app: Application): Unit = {
     logger.trace("[MainMenuState.cleanup] enter.")
   }
 
+  /**
+   * When we're activated, create a menu. It adds itself to the display.
+   */
   override def onEnable(): Unit = {
     logger.trace("[MainMenuState.onEnable] enter.")
-    val app = getApplication.asInstanceOf[AnimalCards]
-    app.getGuiNode.attachChild(menu)
+    menu = new SimpleMenu(app, "Animal Cards", menuItems)
   }
 
+  /**
+   * When we're deactivated, blank the menu. It has already removed itself from the display.
+   */
   override def onDisable(): Unit = {
     logger.trace("[MainMenuState.onDisable] enter.")
-    menu.removeFromParent()
+    menu = null
   }
 
-  private class Highlight extends Command[Button] {
-    override def execute(source: Button): Unit = {
-      logger.trace("[Highlight.execute] enter.")
-    }
-  }
+  /**
+   * Maps the menu options to functions handling the commands
+   */
+  private val commandMap = Map[String, () => Unit](
+    MainMenuState.MATCH_GAME -> startMatchGame,
+    MainMenuState.SEQUENCE_GAME -> startSequenceGame,
+    MainMenuState.EXIT -> stop
+  )
 
-  private class Start extends Command[Button] {
-    private val gameState = new MatchGameState()
+  /**
+   * Check to see if the user has selected an option. If they have, run it.
+   * @param tpf time per frame
+   */
+  override def update(tpf: Float): Unit =
+    logger.debug("[MainMenuState.update] enter.")
+    if menu.isChoiceMade then
+      val choice = menu.getChoice
+      commandMap(choice.getLabel)()
 
-    override def execute(source: Button): Unit = {
-      logger.trace("[Start.execute] enter.")
-      getStateManager.attach(gameState)
-      setEnabled(false)
-    }
-  }
+  /**
+   * User wants to play the match game, so start it.
+   */
+  private def startMatchGame(): Unit =
+    logger.debug("[MainMenuState.startMatchGame] enter.")
 
-  private class Stop extends Command[Button] {
-    override def execute(source: Button): Unit = {
-      logger.trace("[Stop.execute] enter.")
-      getApplication.stop()
-    }
-  }
-}
+    getStateManager.attach(matchGame)
+    setEnabled(false)
+
+  /**
+   * User wants to play the sequence game, so start it.
+   */
+  private def startSequenceGame(): Unit =
+    logger.trace("[StartSequenceGame.execute] enter.")
+    getStateManager.attach(sequenceGame)
+    setEnabled(false)
+
+  /**
+   * User wants to quit.
+   */
+  private def stop(): Unit =
+    logger.trace("[Stop.execute] enter.")
+    getApplication.stop()
+end MainMenuState

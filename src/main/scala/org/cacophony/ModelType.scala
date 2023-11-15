@@ -44,9 +44,9 @@ import com.simsilica.es.EntityComponent
  * @author Paul Speed
  *         Converted to Scala by IntelliJ IDEA
  */
-class ModelType(private var myType: String, private var label: String) extends EntityComponent {
+class ModelType(private var myType: String, private var label: String) extends EntityComponent:
   def getType: String = myType
   def getLabel: String = label
 
   override def toString: String = s"ModelType[$myType, $label]"
-}
+end ModelType

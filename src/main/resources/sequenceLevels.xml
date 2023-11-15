@@ -1,4 +1,5 @@
-/*
+<?xml  version='1.0' encoding='UTF-8'?>
+<!--
  * $Id$
  *
  * Copyright (c) 2011-2013 jMonkeyEngine
@@ -30,28 +31,25 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-package org.cacophony
-
-import com.jme3.math.{Quaternion, Vector3f}
-import com.simsilica.es.EntityComponent
-
-/**
- * Represents a position and orientation of an entity.  This
- * is a general component that is not necessarily specific to
- * Asteroid Panic.
- *
- * @author Paul Speed
- *         Converted to Scala by IntelliJ IDEA
- */
-class Position(private val location: Vector3f,
-               private val facing: Quaternion,
-               private val side: Side) extends EntityComponent:
-  def getLocation: Vector3f = location
-  def getFacing: Quaternion = facing
-  def getSide: Side = side
-
-  override def toString: String = "Position[" + location + ", " + facing + ", " + side + "]"
-end Position
-
+-->
+<!--
+  var label: String = _
+  var startLength: Int = _
+  var endLength: Int = _
+  var incrementSize: Int = _
+  var cardChoices: Int = _
+-->
+<org.cacophony.GameLevels format_version='2' savable_versions='0'>
+    <!-- Use this for testing end of game stuff -->
+<!--    <levels size='1'>-->
+<!--        <org.cacophony.SequenceLevel label='ONE' startLength="3" endLength="10" incrementSize="1" cardChoices="3" savable_versions='0'/>-->
+<!--    </levels>-->
+    <!-- Use this for actual play. -->
+    <levels size='5'>
+        <org.cacophony.SequenceLevel label='ONE' startLength="3" endLength="6" incrementSize="1" cardChoices="3" savable_versions='0'/>
+        <org.cacophony.SequenceLevel label='TWO' startLength="4" endLength="8" incrementSize="1" cardChoices="4" savable_versions='0'/>
+        <org.cacophony.SequenceLevel label='THREE' startLength="5" endLength="10" incrementSize="1" cardChoices="5" savable_versions='0'/>
+        <org.cacophony.SequenceLevel label='FOUR' startLength="6" endLength="12" incrementSize="1" cardChoices="6" savable_versions='0'/>
+        <org.cacophony.SequenceLevel label='FIVE' startLength="7" endLength="14" incrementSize="2" cardChoices="6" savable_versions='0'/>
+    </levels>
+</org.cacophony.GameLevels>

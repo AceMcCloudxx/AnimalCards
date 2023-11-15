@@ -41,39 +41,47 @@ import com.jme3.math.{ColorRGBA, FastMath, Vector2f, Vector3f}
 import com.jme3.scene.*
 import com.jme3.texture.Texture
 import com.jme3.util.BufferUtils
-import com.simsilica.es.{Entity, EntityData}
+import com.simsilica.es.{Entity, EntityComponent, EntityData, EntityId}
 import com.simsilica.lemur.event.{DefaultMouseListener, MouseEventControl}
 import org.slf4j.{Logger, LoggerFactory}
 
-object ToyModelFactory {
+/**
+ * Constants used in creating the model objects
+ * 
+ * @author Ace McCloud
+ */
+object CardModelFactory {
   val ENTITY_ID = "entityID"
 
   val MATCH_CARD = "match game card"
+  val SEQUENCE_CARD = "sequence card"
+  val SEQUENCE_LAYOUT_CARD = "sequence layout card"
 }
 
 /**
  * This object creates the spatials used by jME to display the cards
+ * 
+ * @author Ace McCloud
  */
-class ToyModelFactory extends ModelFactory {
+class CardModelFactory extends ModelFactory:
   private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
 
   private var state: ModelState = _
   private var assets: AssetManager = _
   private var ed: EntityData = _
-  private var gameState: MatchGameState = _
+  private var gameState: AnimalGameState = _
 
-  override def setState(state: ModelState): Unit = {
+  override def setState(state: ModelState): Unit =
     this.state = state
     this.assets = state.getApplication.getAssetManager
     this.ed = state.getApplication.getStateManager.getState(classOf[EntityDataState]).getEntityData
-  }
 
   /**
    * Creates the spatial for a card. So far, cards are the only defined entities.
    * @param e The entity object for the card
    * @return Created spatial
    */
-  override def createModel(e: Entity): Spatial = {
+  override def createModel(e: Entity): Spatial =
     updateGameState()
 
     val modelType = e.get(classOf[ModelType])
@@ -83,7 +91,7 @@ class ToyModelFactory extends ModelFactory {
 
     val id = e.getId.getId
     val parent = new Node(s"card: $label")
-    parent.setUserData(ToyModelFactory.ENTITY_ID, id)
+    parent.setUserData(CardModelFactory.ENTITY_ID, id)
 
     val front: Geometry = createCardFront(label, mesh, id)
     val back: Geometry = createCardBack(mesh, id)
@@ -95,39 +103,36 @@ class ToyModelFactory extends ModelFactory {
     MouseEventControl.addListenersToSpatial(parent, MouseListener)
 
     parent
-  }
 
-  private def createCardFront(label: String, mesh: Mesh, id: Long) = {
+  private def createCardFront(label: String, mesh: Mesh, id: Long) =
     val fileName = s"Textures/$label.png"
     val t: Texture = assets.loadTexture(fileName)
 
     val front = new Geometry("Card", mesh)
-    front.setUserData(ToyModelFactory.ENTITY_ID, id)
+    front.setUserData(CardModelFactory.ENTITY_ID, id)
     front.move(-0.55f, -0.8f, 0f)
     val mat = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md")
 
     mat.setTexture("ColorMap", t)
     front.setMaterial(mat)
     front
-  }
 
-  private def createCardBack(mesh: Mesh, id: Long) = {
+  private def createCardBack(mesh: Mesh, id: Long) =
     val back = new Geometry("Card", mesh)
-    back.setUserData(ToyModelFactory.ENTITY_ID, id)
+    back.setUserData(CardModelFactory.ENTITY_ID, id)
     val mat2 = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md")
     mat2.setColor("Color", ColorRGBA.Blue)
     back.setMaterial(mat2)
     back.move(0.55f, -0.8f, 0.01f)
     back.rotate(0f, FastMath.PI, 0f)
     back
-  }
 
   /**
    * Done this way mostly so I could play with creating a custom mesh from scratch
    *
    * @return Flat rectangular mesh with two triangles
    */
-  private def createMesh(): Mesh = {
+  private def createMesh(): Mesh =
     val mesh = new Mesh()
 
     val vertices = new Array[Vector3f](4)
@@ -149,21 +154,19 @@ class ToyModelFactory extends ModelFactory {
     mesh.setBuffer(VertexBuffer.Type.Index, 3, BufferUtils.createIntBuffer(indexes:_*))
 
     mesh
-  }
 
-  private def updateGameState(): Unit = {
-    if (gameState == null) {
+  private def updateGameState(): Unit =
+    if gameState == null then
       gameState = state.getApplication.getStateManager.getState(classOf[MatchGameState])
       logger.trace("[ToyModelFactory.setState] gameState is: {}", gameState)
-    }
-  }
 
-  private object MouseListener extends DefaultMouseListener {
-    override def click(event: MouseButtonEvent, target: Spatial, capture: Spatial): Unit = {
-      val entityID: java.lang.Long = target.getUserData(ToyModelFactory.ENTITY_ID)
+  private object MouseListener extends DefaultMouseListener:
+    override def click(event: MouseButtonEvent, target: Spatial, capture: Spatial): Unit =
+      val entityID: java.lang.Long = target.getUserData(CardModelFactory.ENTITY_ID)
       logger.trace("[MouseListener.click] target: {}", entityID)
-      gameState.cardClicked(entityID)
-    }
+//      gameState.cardClicked(entityID)
+      ed.setComponent(new EntityId(entityID), new Clicked())
+    
 
     /*
      * Leave these in - we may use them in a future version of the program.
@@ -187,5 +190,12 @@ class ToyModelFactory extends ModelFactory {
 //      val entityID: java.lang.Long = target.getUserData(ToyModelFactory.ENTITY_ID)
 //      logger.debug("[MouseListener.mouseMoved] target: {}", entityID)
 //    }
-  }
-}
+  end MouseListener
+end CardModelFactory
+
+/**
+ * Simple component signifying that the entity was clicked on.
+ * 
+ * @author Ace McCloud
+ */
+class Clicked extends EntityComponent

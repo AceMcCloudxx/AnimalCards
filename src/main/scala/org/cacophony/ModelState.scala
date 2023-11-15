@@ -110,7 +110,6 @@ import org.slf4j.LoggerFactory
 
 import java.util
 
-
 /**
  * Watches entities with Position and ModelType components
  * and creates/destroys Spatials as needed as well as moving
@@ -125,7 +124,7 @@ import java.util
  *
  */
 //noinspection ScalaWeakerAccess
-class ModelState(private var factory: ModelFactory) extends BaseAppState {
+class ModelState(private var factory: ModelFactory) extends BaseAppState:
   private val logger = LoggerFactory.getLogger(classOf[ModelState].getName)
 
   private var ed: EntityData = _
@@ -137,57 +136,47 @@ class ModelState(private var factory: ModelFactory) extends BaseAppState {
 
   protected def createSpatial(e: Entity): Spatial = factory.createModel(e)
 
-  protected def addModels(set: util.Set[Entity]): Unit = {
+  protected def addModels(set: util.Set[Entity]): Unit =
     logger.trace("[ModelState.addModels] adding: {}", set)
     val i = set.iterator()
-    while (i.hasNext) {
+    while (i.hasNext)
       val nextEntity = i.next()
       // See if we already have one
       var s = models.get(nextEntity.getId)
-      if (s != null) {
+      if s != null then
         logger.error("Model already exists for added entity: {}", nextEntity)
-      } else {
+      else
         s = createSpatial(nextEntity)
         models.put(nextEntity.getId, s)
         updateModelSpatial(nextEntity, s)
         modelRoot.attachChild(s)
-      }
-    }
-  }
 
-  protected def removeModels(set: util.Set[Entity]): Unit = {
+  protected def removeModels(set: util.Set[Entity]): Unit =
     val i = set.iterator()
-    while (i.hasNext) {
+    while (i.hasNext)
       val e = i.next()
       val s = models.remove(e.getId)
-      if (s == null) {
+      if (s == null)
         logger.error("Model not found for removed entity: {}", e)
-      } else {
+      else
         s.removeFromParent()
-      }
-    }
-  }
 
-  protected def updateModelSpatial(e: Entity, s: Spatial): Unit = {
+  protected def updateModelSpatial(e: Entity, s: Spatial): Unit =
     val p = e.get(classOf[Position])
     s.setLocalTranslation(p.getLocation)
     s.setLocalRotation(p.getFacing)
-  }
 
-  protected def updateModels(set: util.Set[Entity]): Unit = {
+  protected def updateModels(set: util.Set[Entity]): Unit =
     val i = set.iterator()
-    while (i.hasNext) {
+    while (i.hasNext)
       val e = i.next()
       val s = models.get(e.getId)
-      if (s == null) {
+      if (s == null)
         logger.error("Model not found for updated entity:" + e)
-      } else {
+      else
         updateModelSpatial(e, s)
-      }
-    }
-  }
 
-  override protected def initialize(app: Application): Unit = {
+  override protected def initialize(app: Application): Unit =
     logger.trace("[ModelState.initialize] enter.")
     factory.setState(this)
     // Grab the set of entities we are interested in
@@ -195,31 +184,26 @@ class ModelState(private var factory: ModelFactory) extends BaseAppState {
     entities = ed.getEntities(classOf[Position], classOf[ModelType])
     // Create a root for all of the models we create
     modelRoot = new Node("Model Root")
-  }
 
-  override protected def cleanup(app: Application): Unit = {
+  override protected def cleanup(app: Application): Unit =
     // Release the entity set we grabbed previously
     entities.release()
     entities = null
-  }
 
-  override protected def onEnable(): Unit = {
+  override protected def onEnable(): Unit =
     logger.trace("[ModelState.onEnable] enter.")
     getApplication.asInstanceOf[AnimalCards].getRootNode.attachChild(modelRoot)
     entities.applyChanges
     addModels(entities)
-  }
 
-  override def update(tpf: Float): Unit = {
-    if (entities.applyChanges) {
+  override def update(tpf: Float): Unit =
+    if entities.applyChanges then
       removeModels(entities.getRemovedEntities)
       addModels(entities.getAddedEntities)
       updateModels(entities.getChangedEntities)
-    }
-  }
 
-  override protected def onDisable(): Unit = {
+  override protected def onDisable(): Unit =
     modelRoot.removeFromParent()
     removeModels(entities)
-  }
-}
+end ModelState
+

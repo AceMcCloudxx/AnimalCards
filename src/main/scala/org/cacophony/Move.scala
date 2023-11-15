@@ -42,19 +42,21 @@ import com.simsilica.es.EntityComponent
  * @param time Time frame, in seconds, over which the move should occur, using interpolation
  * @param startLocation Move from
  * @param finalLocation Move to
+ *
+ * @author Ace McCloud
  */
-class Move (time: java.lang.Float, startLocation: Vector3f, finalLocation: Vector3f) extends EntityComponent {
+class Move (time: java.lang.Float, startLocation: Vector3f, finalLocation: Vector3f) extends EntityComponent:
   private var elapsedTime: java.lang.Float = 0f
   
   override def toString: String = s"Move($elapsedTime of $time, from $startLocation to $finalLocation)"
 
   def isDone: Boolean = elapsedTime >= time
 
-  def interpolate(tpf: java.lang.Float): Vector3f = {
+  def interpolate(tpf: java.lang.Float): Vector3f =
     elapsedTime += tpf
     if elapsedTime > time then
       elapsedTime = time
 
     startLocation.interpolateLocal(finalLocation, elapsedTime)
-  }
-}
+end Move
+

@@ -44,11 +44,10 @@ import com.simsilica.es.Entity
  * 
  * @author AceMcCloud
  */
-class CardMoverState extends ConditionalUpdaterState(classOf[Move]) {
+class CardMoverState extends ConditionalUpdaterState(classOf[Move]):
 
-  private val ONE_SECOND = 1000000000f
-  protected def doOneUpdate(delta: java.lang.Long, e: Entity): Unit = {
-    val tpf = delta / ONE_SECOND
+  protected def doOneUpdate(delta: java.lang.Long, e: Entity): Unit =
+    val tpf = delta.floatValue() / Constants.ONE_SECOND
     logger.trace("[CardMoverState.move] next: {}", e)
     val position = e.get(classOf[Position])
     val move = e.get(classOf[Move])
@@ -57,5 +56,5 @@ class CardMoverState extends ConditionalUpdaterState(classOf[Move]) {
 
     if move.isDone then
       entityData.removeComponent(e.getId, classOf[Move])
-  }
-}
+end CardMoverState
+

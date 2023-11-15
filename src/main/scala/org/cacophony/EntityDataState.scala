@@ -48,25 +48,20 @@ import org.slf4j.{Logger, LoggerFactory}
  * @author Paul Speed
  *         Converted to Scala by IntelliJ IDEA
  */
-class EntityDataState(private var entityData: EntityData) extends BaseAppState {
-  def this() = {
+class EntityDataState(private var entityData: EntityData) extends BaseAppState:
+  def this() =
     this(new DefaultEntityData)
-  }
 
   def getEntityData: EntityData = entityData
 
-  override protected def initialize(app: Application): Unit = {
-  }
+  override protected def initialize(app: Application): Unit = {}
 
-  override protected def cleanup(app: Application): Unit = {
+  override protected def cleanup(app: Application): Unit =
     entityData.close()
     entityData = null // cannot be reused
 
-  }
+  override protected def onEnable(): Unit = {}
 
-  override protected def onEnable(): Unit = {
-  }
+  override protected def onDisable(): Unit = {}
+end EntityDataState
 
-  override protected def onDisable(): Unit = {
-  }
-}
