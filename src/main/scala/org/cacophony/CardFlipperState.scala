@@ -44,14 +44,14 @@ import com.simsilica.es.Entity
  * 
  * @author AceMcCloud
  */
-class CardFlipperState extends ConditionalUpdaterState(classOf[Rotation]) {
+class CardFlipperState extends ConditionalUpdaterState(classOf[Rotation]):
 
   /**
    * Handles the actual rotation
    * @param delta Difference between last frame and this frame in nanoseconds
    * @param e One entity to be updated, it will contain a position and a update component
    */
-  protected def doOneUpdate(delta: java.lang.Long, e: Entity): Unit = {
+  protected def doOneUpdate(delta: java.lang.Long, e: Entity): Unit =
     val position = e.get(classOf[Position])
     val rotationComponent = e.get(classOf[Rotation])
     val q = rotationComponent.slerp(delta)
@@ -62,5 +62,5 @@ class CardFlipperState extends ConditionalUpdaterState(classOf[Rotation]) {
       entityData.removeComponent(e.getId, classOf[Rotation])
 
     e.set(new Position(position.getLocation, q, side))
-  }
-}
+end CardFlipperState
+

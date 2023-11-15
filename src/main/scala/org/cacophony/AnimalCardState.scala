@@ -34,24 +34,56 @@
 
 package org.cacophony
 
-import com.jme3.math.{Quaternion, Vector3f}
-import com.simsilica.es.EntityComponent
+import com.simsilica.es.{EntityId, EntitySet}
 
 /**
- * Represents a position and orientation of an entity.  This
- * is a general component that is not necessarily specific to
- * Asteroid Panic.
- *
- * @author Paul Speed
- *         Converted to Scala by IntelliJ IDEA
+ * A state that the MatchGameState object can be in. Updates and clicks may be handled
+ * differently in different states.
+ * 
+ * @author Ace McCloud
  */
-class Position(private val location: Vector3f,
-               private val facing: Quaternion,
-               private val side: Side) extends EntityComponent:
-  def getLocation: Vector3f = location
-  def getFacing: Quaternion = facing
-  def getSide: Side = side
+trait AnimalCardState:
+  protected var clicked: EntitySet = _
 
-  override def toString: String = "Position[" + location + ", " + facing + ", " + side + "]"
-end Position
+  /**
+   * Called by the enclosing BaseAppState object to handle state based updates.
+   * @param tpf Time per frame
+   * @return Next or current state
+   */
+  def update(tpf: Float): AnimalCardState
 
+  /**
+   * A utility function used by some states to map click on a card to our function
+   * that handles clicks.
+   */
+  protected def checkForClick(): Unit = {
+    clicked.applyChanges()
+    clicked.forEach(e => {
+      val id = e.getId
+      click(id)
+    })
+  }
+
+  protected def click(entityId: EntityId): Unit = {}
+end AnimalCardState
+
+/**
+ * A utility state that can be used by the games when transitioning between
+ * two states with a time delay.
+ * @param time Amount of time to wait
+ * @param next The state to transition to when the timer has expired
+ *
+ * @author Ace McCloud
+ */
+class WaitState(time: Float, next: AnimalCardState) extends AnimalCardState:
+  private var remaining: Float = time
+  def update(tpf: Float): AnimalCardState = {
+    var result:AnimalCardState  = this
+    remaining -= tpf
+
+    if remaining <= 0 then
+      result = next
+
+    result
+  }
+end WaitState

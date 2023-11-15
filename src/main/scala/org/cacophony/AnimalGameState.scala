@@ -34,24 +34,13 @@
 
 package org.cacophony
 
-import com.jme3.math.{Quaternion, Vector3f}
-import com.simsilica.es.EntityComponent
+import com.jme3.app.state.BaseAppState
 
 /**
- * Represents a position and orientation of an entity.  This
- * is a general component that is not necessarily specific to
- * Asteroid Panic.
- *
- * @author Paul Speed
- *         Converted to Scala by IntelliJ IDEA
+ * A base class for the individual games that we have implemented
+ * 
+ * @author Ace McCloud
  */
-class Position(private val location: Vector3f,
-               private val facing: Quaternion,
-               private val side: Side) extends EntityComponent:
-  def getLocation: Vector3f = location
-  def getFacing: Quaternion = facing
-  def getSide: Side = side
-
-  override def toString: String = "Position[" + location + ", " + facing + ", " + side + "]"
-end Position
-
+abstract class AnimalGameState extends BaseAppState {
+  protected var currentState: AnimalCardState = _
+}

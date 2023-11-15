@@ -34,24 +34,23 @@
 
 package org.cacophony
 
-import com.jme3.math.{Quaternion, Vector3f}
-import com.simsilica.es.EntityComponent
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
- * Represents a position and orientation of an entity.  This
- * is a general component that is not necessarily specific to
- * Asteroid Panic.
- *
- * @author Paul Speed
- *         Converted to Scala by IntelliJ IDEA
+ * Utility that reads the list of animal names from a file for easy access by
+ * the individual games
  */
-class Position(private val location: Vector3f,
-               private val facing: Quaternion,
-               private val side: Side) extends EntityComponent:
-  def getLocation: Vector3f = location
-  def getFacing: Quaternion = facing
-  def getSide: Side = side
+object AnimalNames {
+  val animalNames: Array[String] = initialize()
 
-  override def toString: String = "Position[" + location + ", " + facing + ", " + side + "]"
-end Position
-
+  /**
+   * Read the list of available animal graphics files from a new-line delimited
+   * card file.
+   */
+  def initialize(): Array[String] = {
+    val stream = getClass.getResource("/cardList.txt").openStream()
+    val raw = stream.readAllBytes()
+    stream.close()
+    new String(raw).split("\n")
+  }
+}

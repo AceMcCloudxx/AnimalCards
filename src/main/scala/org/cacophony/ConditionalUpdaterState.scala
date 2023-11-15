@@ -47,7 +47,7 @@ import org.slf4j.{Logger, LoggerFactory}
  *
  * @author AceMcCloud
  */
-abstract class ConditionalUpdaterState(conditionType: Class[_]) extends BaseAppState {
+abstract class ConditionalUpdaterState(conditionType: Class[_]) extends BaseAppState:
   protected val logger: Logger = LoggerFactory.getLogger(getClass.getName)
 
   protected var entityData: EntityData = _
@@ -55,28 +55,25 @@ abstract class ConditionalUpdaterState(conditionType: Class[_]) extends BaseAppS
 
   protected var lastFrame: Long = _
 
-  override def initialize(app: Application): Unit = {
+  override def initialize(app: Application): Unit =
     logger.trace("[ConditionalUpdaterState.initialize] enter.")
     entityData = getState(classOf[EntityDataState]).getEntityData
     entities = entityData.getEntities(classOf[Position], conditionType)
-  }
 
-  override def cleanup(app: Application): Unit = {
+  override def cleanup(app: Application): Unit =
     logger.trace("[ConditionalUpdaterState.cleanup] enter.")
     // Release the entity set we grabbed previously
     entities.release()
     entities = null
-  }
 
-  override def onEnable(): Unit = {
+  override def onEnable(): Unit =
     logger.trace("[ConditionalUpdaterState.onEnable] enter.")
     lastFrame = System.nanoTime
-  }
 
   override def onDisable(): Unit = {}
 
   private val POINT_ONE_SECONDS = 100000000L
-  override def update(tpf: Float): Unit = {
+  override def update(tpf: Float): Unit =
     // Use our own tpf calculation in case frame rate is
     // running away making this tpf unstable
     val time = System.nanoTime
@@ -91,7 +88,6 @@ abstract class ConditionalUpdaterState(conditionType: Class[_]) extends BaseAppS
     if delta > 0 then
       entities.applyChanges()
       entities.forEach(e => doOneUpdate(delta, e))
-  }
 
   /**
    * Here is where the subclasses do their updates.
@@ -99,4 +95,5 @@ abstract class ConditionalUpdaterState(conditionType: Class[_]) extends BaseAppS
    * @param e One entity to be updated, it will contain a position and a update component
    */
   protected def doOneUpdate(delta: java.lang.Long, e: Entity): Unit
-}
+end ConditionalUpdaterState
+

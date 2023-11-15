@@ -34,24 +34,12 @@
 
 package org.cacophony
 
-import com.jme3.math.{Quaternion, Vector3f}
-import com.simsilica.es.EntityComponent
-
 /**
- * Represents a position and orientation of an entity.  This
- * is a general component that is not necessarily specific to
- * Asteroid Panic.
- *
- * @author Paul Speed
- *         Converted to Scala by IntelliJ IDEA
+ * A place to park constants used in the code
+ * 
+ * @author Ace McCloud
  */
-class Position(private val location: Vector3f,
-               private val facing: Quaternion,
-               private val side: Side) extends EntityComponent:
-  def getLocation: Vector3f = location
-  def getFacing: Quaternion = facing
-  def getSide: Side = side
-
-  override def toString: String = "Position[" + location + ", " + facing + ", " + side + "]"
-end Position
+object Constants:
+  val ONE_SECOND = 1000000000L
+end Constants
 

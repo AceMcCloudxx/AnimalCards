@@ -44,8 +44,9 @@ import com.simsilica.es.Entity
  * @author Paul Speed
  *         Converted to Scala by IntelliJ IDEA
  */
-trait ModelFactory {
+trait ModelFactory :
   def setState(state: ModelState): Unit
 
   def createModel(e: Entity): Spatial
-}
+end ModelFactory
+

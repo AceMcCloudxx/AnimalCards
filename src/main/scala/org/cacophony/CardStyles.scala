@@ -49,14 +49,13 @@ import com.simsilica.lemur.style.Styles
  * @author Paul Speed
  *         converted to Scala by IntelliJ IDEA
  */
-object ToyStyles {
+object CardStyles:
   val TITLE_ID = "title"
-  val MESSAGE_ID = "message"
+  private val MESSAGE_ID = "message"
   val MENU_ID = "menu"
-  val CARD_TABLE_ID = "table.card"
   val MENU_TITLE_ID = "menu.title"
 
-  def initializeStyles(styles: Styles): Unit = {
+  def initializeStyles(styles: Styles): Unit =
     // Set the message font size to be the same (by default) for any
     // any style.
     val title = styles.getSelector(TITLE_ID, null)
@@ -82,5 +81,5 @@ object ToyStyles {
     button.set("insets", new Insets3f(1, 5, 10, 5))
     button.set("textHAlignment", HAlignment.Center)
     button.set("fontSize", 32f)
-  }
-}
+end CardStyles
+

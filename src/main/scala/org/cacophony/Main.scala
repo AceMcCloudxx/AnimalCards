@@ -44,8 +44,8 @@ import org.slf4j.{Logger, LoggerFactory}
 /**
  * @author AceMcCloud
  */
-object Main {
-  def main(args: Array[String]): Unit = {
+object Main:
+  def main(args: Array[String]): Unit =
     val main = AnimalCards()
 
     val settings = new AppSettings(true)
@@ -54,21 +54,20 @@ object Main {
     main.setSettings(settings)
 
     main.start()
-  }
-}
+end Main
 
 class AnimalCards extends SimpleApplication(
   new EntityDataState(),
-  new ModelState(new ToyModelFactory()),
+  new ModelState(new CardModelFactory()),
   new MainMenuState(),
   new CardFlipperState(),
   new CardMoverState()
-) {
+):
   private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   
   def getGuiFont: BitmapFont = guiFont
   
-  override def simpleInitApp(): Unit = {
+  override def simpleInitApp(): Unit =
     logger.debug("[AnimalCards.simpleInitApp] enter.")
 
     // Initialize the Lemur helper instance
@@ -76,6 +75,6 @@ class AnimalCards extends SimpleApplication(
 
     // Setup the "retro" style for our HUD and GUI elements
     val styles = GuiGlobals.getInstance.getStyles
-    ToyStyles.initializeStyles(styles)
-  }
-}
+    CardStyles.initializeStyles(styles)
+end AnimalCards
+

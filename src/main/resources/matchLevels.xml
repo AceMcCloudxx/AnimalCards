@@ -32,7 +32,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
-<org.cacophony.MatchLevels format_version='2' savable_versions='0'>
+<org.cacophony.GameLevels format_version='2' savable_versions='0'>
     <!-- Use this for testing end of game stuff -->
 <!--    <levels size='1'>-->
 <!--        <org.cacophony.MatchLevel cardsPerMatch='2' label='ONE' matches='3' savable_versions='0'/>-->
@@ -45,4 +45,4 @@
         <org.cacophony.MatchLevel cardsPerMatch='2' label='FOUR' matches='5' savable_versions='0'/>
         <org.cacophony.MatchLevel cardsPerMatch='3' label='FIVE' matches='5' savable_versions='0'/>
     </levels>
-</org.cacophony.MatchLevels>
+</org.cacophony.GameLevels>

@@ -39,8 +39,10 @@ import com.simsilica.es.EntityComponent
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
- * Cards only have two sides (a and b), but by specifying them this way, when we do the slerp
+ * Cards only have two sides (face up and face down), but by specifying them this way, when we do the slerp
  * calculations, the rotation is always in the same direction. It's a stylistic choice.
+ * 
+ * @author Ace McCloud
  */
 //noinspection ScalaWeakerAccess
 enum Side(val q: Quaternion):
@@ -52,10 +54,10 @@ enum Side(val q: Quaternion):
 
     Side.fromOrdinal(ord)
   }
-  case a1 extends Side(new Quaternion(0,0,0,1))
-  case b1 extends Side(new Quaternion(0,1,0,0))
-  case a2 extends Side(new Quaternion(0,0,0,-1))
-  case b2 extends Side(new Quaternion(0,-1,0,0))
+  case faceUp1 extends Side(new Quaternion(0,0,0,1))
+  case faceDown1 extends Side(new Quaternion(0,1,0,0))
+  case faceUp2 extends Side(new Quaternion(0,0,0,-1))
+  case faceDown2 extends Side(new Quaternion(0,-1,0,0))
 end Side
 
 /**
@@ -63,8 +65,10 @@ end Side
  * @param time the time frame, in seconds, over which the rotation occurs
  * @param startSide Rotate from
  * @param finalSide Rotate to
+ *
+ * @author Ace McCloud
  */
-class Rotation(time: java.lang.Long, startSide: Side, finalSide: Side) extends EntityComponent {
+class Rotation(time: java.lang.Long, startSide: Side, finalSide: Side) extends EntityComponent:
   private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
   private var cumulativeTime: java.lang.Long = 0L
 
@@ -74,14 +78,13 @@ class Rotation(time: java.lang.Long, startSide: Side, finalSide: Side) extends E
   def isDone: Boolean = cumulativeTime >= time
   def getFinal: Side = finalSide
 
-  def next(): Rotation = {
+  def next(): Rotation =
     val nextSide: Side = finalSide.next()
     new Rotation(time, finalSide, nextSide)
-  }
 
   override def toString: String = s"Rotation($cumulativeTime, $startRotation, $finalRotation)"
 
-  def slerp(tpf: java.lang.Long): Quaternion = {
+  def slerp(tpf: java.lang.Long): Quaternion =
     if cumulativeTime >= time then
       finalRotation
     else
@@ -94,5 +97,5 @@ class Rotation(time: java.lang.Long, startSide: Side, finalSide: Side) extends E
       logger.trace("[Rotation.slerp] slerpTime: {}", slerpTime)
       result.slerp(startRotation, finalRotation, slerpTime)
       result
-  }
-}
+end Rotation
+
