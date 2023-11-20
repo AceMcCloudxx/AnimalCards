@@ -59,7 +59,7 @@ class MatchGameState extends AnimalGameState:
 
   private var ed: EntityData = _
 
-  private var hud: MatchGameHUD = new MatchGameHUD()
+  private val hud: MatchGameHUD = new MatchGameHUD()
   private var gameLevel: MatchLevel = _
   private var locations: MatchTableauLocations = _
 
@@ -92,7 +92,7 @@ class MatchGameState extends AnimalGameState:
    * Initial state for each game level, sets up the deck and tableau, then waits
    * a half-second before moving to MGDeal state
    */
-  private class MGStart() extends AnimalCardState:
+  private class MGStart extends AnimalCardState:
     private var needsInitialization = true
     private var clock = 0.5f
 
@@ -120,7 +120,7 @@ class MatchGameState extends AnimalGameState:
    * Here we are going to deal the cards into the tableau. When everything has been dealt,
    * move on to MGPlay state.
    */
-  private class MGDeal() extends AnimalCardState:
+  private class MGDeal extends AnimalCardState:
     private var needsInitialization = true
     private var dealList: List[EntityId] = Nil
     private var elapsed: java.lang.Float = 0
@@ -172,7 +172,7 @@ class MatchGameState extends AnimalGameState:
   /**
    * Here is where the actual game logic is located. Handles card clicks, checks for matches, etc.
    */
-  private class MGPlay() extends AnimalCardState:
+  private class MGPlay extends AnimalCardState:
     private var needsInitialization = true
     private var turnCount: Int = 0
     private var chooseCount: Int = _
@@ -281,7 +281,7 @@ class MatchGameState extends AnimalGameState:
 
       val nextEntity = ed.getEntity(cardID, classOf[Position])
       val position = nextEntity.get(classOf[Position])
-      ed.setComponent(cardID, new Move(1.0f, position.getLocation, MatchTableauLocations.discardLocation))
+      ed.setComponent(cardID, new Move(1.0f, position.getLocation, locations.nextDiscard()))
       discards.add(cardID)
   end MGPlay
 
@@ -407,10 +407,10 @@ end MatchLevel
  */
 object MatchTableauLocations:
   def deckLocation = new Vector3f(-7, 3, 0.0)
-  def discardLocation = new Vector3f(7, 3, 0.0)
 
   private val X_SPACING = 1.2f
   private val Y_SPACING = 1.75f
+  private val DISCARD_SPACING = 0.03f
 end MatchTableauLocations
 
 /**
@@ -428,10 +428,17 @@ class MatchTableauLocations(gameLevel: MatchLevel):
   private val columns = (cards + rows - 1) / rows
   private val startX = -(columns / 2) * MatchTableauLocations.X_SPACING
   private val startY = (rows / 2) * MatchTableauLocations.Y_SPACING
+  private var discardOffset = 0.0f
 
   private val layout: Array[Vector3f] = calculateLayout()
 
   def getLocation(index: Int): Vector3f = layout(index)
+
+  def nextDiscard(): Vector3f = {
+    val result = new Vector3f(7, 3, discardOffset)
+    discardOffset += MatchTableauLocations.DISCARD_SPACING
+    result
+  }
 
   private def calculateLayout(): Array[Vector3f] =
     val result = new Array[Vector3f](cards)

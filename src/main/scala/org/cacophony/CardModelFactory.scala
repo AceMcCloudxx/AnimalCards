@@ -42,6 +42,7 @@ import com.jme3.scene.*
 import com.jme3.texture.Texture
 import com.jme3.util.BufferUtils
 import com.simsilica.es.{Entity, EntityComponent, EntityData, EntityId}
+import com.simsilica.lemur.Label
 import com.simsilica.lemur.event.{DefaultMouseListener, MouseEventControl}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -63,6 +64,7 @@ object CardModelFactory {
  * 
  * @author Ace McCloud
  */
+//noinspection DuplicatedCode
 class CardModelFactory extends ModelFactory:
   private val logger: Logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -70,6 +72,7 @@ class CardModelFactory extends ModelFactory:
   private var assets: AssetManager = _
   private var ed: EntityData = _
   private var gameState: AnimalGameState = _
+  private val cardMesh = createMesh(1.1f, 1.6f)
 
   override def setState(state: ModelState): Unit =
     this.state = state
@@ -87,14 +90,13 @@ class CardModelFactory extends ModelFactory:
     val modelType = e.get(classOf[ModelType])
     logger.trace("[ToyModelFactory.createModel] creating: {}", modelType)
     val label = modelType.getLabel
-    val mesh = createMesh()
 
     val id = e.getId.getId
     val parent = new Node(s"card: $label")
     parent.setUserData(CardModelFactory.ENTITY_ID, id)
 
-    val front: Geometry = createCardFront(label, mesh, id)
-    val back: Geometry = createCardBack(mesh, id)
+    val front: Node = createCardFront(label, cardMesh)
+    val back: Geometry = createCardBack(cardMesh, id)
 
     parent.attachChild(front)
     parent.attachChild(back)
@@ -104,19 +106,74 @@ class CardModelFactory extends ModelFactory:
 
     parent
 
-  private def createCardFront(label: String, mesh: Mesh, id: Long) =
-    val fileName = s"Textures/$label.png"
-    val t: Texture = assets.loadTexture(fileName)
+  private def createCardFront(label: String, mesh: Mesh) =
+    val front = new Node()
 
-    val front = new Geometry("Card", mesh)
-    front.setUserData(CardModelFactory.ENTITY_ID, id)
-    front.move(-0.55f, -0.8f, 0f)
-    val mat = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md")
+    val image = createImageGeometry(label)
+    front.attachChild(image)
 
-    mat.setTexture("ColorMap", t)
-    front.setMaterial(mat)
+    val frontBackground = createFrontBackground(mesh)
+    front.attachChild(frontBackground)
+
+    val topLabel = createTopLabel(label)
+    front.attachChild(topLabel)
+
+    val bottomLabel = createBottomLabel(label)
+    front.attachChild(bottomLabel)
+
     front
 
+  private def createImageGeometry(label: String): Geometry =
+    val fileName = s"Textures/$label.png"
+
+    val t: Texture = assets.loadTexture(fileName)
+    val i = t.getImage
+    val height = i.getHeight
+    val width = i.getWidth
+
+    val scale = Math.max(width.toFloat, height.toFloat)
+
+    val scaleHeight = height / scale
+    val scaleWidth = width / scale
+    val mesh = createMesh(scaleWidth, scaleHeight)
+    val result = new Geometry("Card image", mesh)
+    result.move(-scaleWidth / 2, -scaleHeight / 2, 0.01f)
+
+    val imageMat = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md")
+    imageMat.setTexture("ColorMap", t)
+    result.setMaterial(imageMat)
+
+    result
+
+  private def createFrontBackground(mesh: Mesh): Geometry = {
+    val frontBackground = new Geometry("Card", mesh)
+    frontBackground.move(-0.55f, -0.8f, 0f)
+    val frontMat = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md")
+    frontMat.setColor("Color", ColorRGBA.White)
+    frontBackground.setMaterial(frontMat)
+
+    frontBackground
+  }
+
+  private def createTopLabel(label: String): Label = {
+    val topLabel = new Label(label, "retro")
+    topLabel.setFontSize(0.16f)
+    topLabel.setColor(ColorRGBA.Black)
+    topLabel.move(-0.54f, 0.79f, 0.01f)
+
+    topLabel
+  }
+
+  private def createBottomLabel(label: String): Label = {
+    val bottomLabel = new Label(label, "retro")
+    bottomLabel.setFontSize(0.16f)
+    bottomLabel.setColor(ColorRGBA.Black)
+    // Because of the rotation, text goes up and to the left
+    bottomLabel.move(0.54f, -0.79f, 0.01f)
+    bottomLabel.setLocalRotation(Side.upsideDown.q)
+
+    bottomLabel
+  }
   private def createCardBack(mesh: Mesh, id: Long) =
     val back = new Geometry("Card", mesh)
     back.setUserData(CardModelFactory.ENTITY_ID, id)
@@ -132,14 +189,14 @@ class CardModelFactory extends ModelFactory:
    *
    * @return Flat rectangular mesh with two triangles
    */
-  private def createMesh(): Mesh =
+  private def createMesh(width: Float, height: Float): Mesh =
     val mesh = new Mesh()
 
     val vertices = new Array[Vector3f](4)
     vertices(0) = new Vector3f(0, 0, 0)
-    vertices(1) = new Vector3f(1.1, 0, 0)
-    vertices(2) = new Vector3f(0, 1.6, 0)
-    vertices(3) = new Vector3f(1.1, 1.6, 0)
+    vertices(1) = new Vector3f(width, 0, 0)
+    vertices(2) = new Vector3f(0, height, 0)
+    vertices(3) = new Vector3f(width, height, 0)
 
     val texCoord = new Array[Vector2f](4)
     texCoord(0) = new Vector2f(0, 0)
