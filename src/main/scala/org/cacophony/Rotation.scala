@@ -58,6 +58,7 @@ enum Side(val q: Quaternion):
   case faceDown1 extends Side(new Quaternion(0,1,0,0))
   case faceUp2 extends Side(new Quaternion(0,0,0,-1))
   case faceDown2 extends Side(new Quaternion(0,-1,0,0))
+  case upsideDown extends Side(new Quaternion(0,0,1,0))
 end Side
 
 /**
